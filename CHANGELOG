@@ -1,0 +1,20 @@
+version 1.2
+
+    - added enchantment book to creative
+    - check for logWood in oredict instead
+    - check for "axe" tool class, instead of tools that inherit ItemAxe
+    - included basic configuration files
+        - allow user to enable leaves in the algorithm
+        - allow user to reduce the durability cost on tools
+        - allow users to adjust the cost of leaves relative to logs
+
+version 1.1
+
+    - fixed a problem where it only checked for log1, meaning some trees wouldn't get cut
+    - added a more advanced algorithm and Felling II that cuts in all directions
+    - slightly more localization
+
+version 1.0
+
+    - basic enchantment with a simple upwards algorithm
+    - basic localization

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "veining",
+  "name": "Veining",
+  "description": "Uncovers an ancient enchantment allows you to mine veins in a single swing.",
+  "version": "1.0.0",
+  "mcversion": "1.12",
+  "url": "https://git.arlyon.co/minecraft/Veining",
+  "updateUrl": "",
+  "authorList": ["arlyon"],
+  "credits": "You <3",
+  "logoFile": "assets/veining/textures/logo.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]
