@@ -1,6 +1,8 @@
 package arlyon.veining;
 
+import com.google.common.collect.UnmodifiableIterator;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.*;
 import net.minecraft.entity.player.EntityPlayer;
@@ -41,6 +43,23 @@ public class EventHandler {
         }
 
         private static String getOreDictType(IBlockState blockState) {
+
+            // TODO HOLY SHIT THIS IS COMPLICATED
+            // check for industrialcraft ores (who use a single ic:resource with properties
+            if (blockState.getBlock().getRegistryName().toString().equals("ic2:resource")) {
+                // if its an ic2 resource it has a property named type that defines what ore it is.
+
+                UnmodifiableIterator<IProperty<?>> keySetIter = blockState.getProperties().keySet().iterator();
+                UnmodifiableIterator<Comparable<?>> valueIter = blockState.getProperties().values().iterator();
+                for (int i = 0; i < blockState.getProperties().size(); i++) {
+                    Comparable<?> value = valueIter.next();
+                    if (keySetIter.next().getName().equals("type")) {
+                        return value.toString().matches("^(.*)_ore$") ? value.toString() : null;
+                    }
+                }
+
+                return null;
+            }
 
             Block defaultBlock = blockState.getBlock() == Blocks.LIT_REDSTONE_ORE ? Blocks.REDSTONE_ORE : blockState.getBlock();
             ItemStack stack = new ItemStack(defaultBlock, 1);
