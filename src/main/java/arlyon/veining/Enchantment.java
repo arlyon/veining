@@ -1,6 +1,5 @@
 package arlyon.veining;
 
-import com.sun.jna.platform.win32.WinBase;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.inventory.EntityEquipmentSlot;
@@ -8,7 +7,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.EnumHelper;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class Enchantment extends net.minecraft.enchantment.Enchantment {
 
@@ -30,11 +28,8 @@ public class Enchantment extends net.minecraft.enchantment.Enchantment {
 
     /**
      * Returns the minimal value of enchantability needed on the enchantment level passed.
-     *
-     * Felling I - 20
-     * Felling II - 35
      */
-    public int getMinEnchantability(int enchantmentLevel) { return 5 + (enchantmentLevel) * 15; }
+    public int getMinEnchantability(int enchantmentLevel) { return 35; }
 
     /**
      * Returns the maximum value of enchantability needed on the enchantment level passed.
