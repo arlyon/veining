@@ -1,11 +1,24 @@
 package arlyon.veining;
 
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.EnumHelper;
+
+import java.util.Arrays;
 
 /**
  * The enchantment class for the Veining enchantment.
  */
 public class Enchantment extends net.minecraft.enchantment.Enchantment {
+
+    /**
+     * Pickaxe enchantment type.
+     */
+    public static EnumEnchantmentType PICKAXE = EnumHelper.addEnchantmentType("PICKAXE", item -> {
+        assert item != null;
+        return item.getToolClasses(new ItemStack(item)).stream().anyMatch(toolClass -> toolClass.equals("pickaxe"));
+    });
 
     /**
      * Sets name and registry name and assigns the proper predicate.
@@ -14,7 +27,7 @@ public class Enchantment extends net.minecraft.enchantment.Enchantment {
      * @param slots the slots in which the enchantment is valid
      */
     Enchantment(Rarity rarityIn, EntityEquipmentSlot... slots) {
-        super(rarityIn, Constants.PICKAXE, slots); // to be eligible for this enchantment, you must match the PICKAXE predicate
+        super(rarityIn, PICKAXE, slots); // to be eligible for this enchantment, you must match the PICKAXE predicate
         setName("veining");
         setRegistryName("veining");
     }

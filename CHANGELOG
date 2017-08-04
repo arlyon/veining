@@ -14,3 +14,4 @@ version 1.1
     - added rarity adjustment in config
     - moved the creativetabs to the clientside proxy
     - thorough code documentation
+    - sort out some client/serverside problems

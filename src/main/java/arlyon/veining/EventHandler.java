@@ -16,7 +16,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.Arrays;
@@ -42,6 +45,12 @@ public class EventHandler {
          */
         @SubscribeEvent
         public static void veiningSubscriber(BlockEvent.BreakEvent event) {
+
+            // if the client is running this code, then back off and let the server do its job
+            if (event.getWorld().isRemote) {
+                return;
+            }
+
             EntityPlayer thePlayer = event.getPlayer();
             ItemStack mainHandItem = thePlayer.getHeldItemMainhand();
             int enchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Constants.veining, mainHandItem);
