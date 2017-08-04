@@ -21,6 +21,8 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Handles the destroying of trees with the veining enchantment.
@@ -44,9 +46,8 @@ public class EventHandler {
 
         private static String getOreDictType(IBlockState blockState) {
 
-            // TODO HOLY SHIT THIS IS COMPLICATED
-            // check for industrialcraft ores (who use a single ic:resource with properties
-            if (blockState.getBlock().getRegistryName().toString().equals("ic2:resource")) {
+            // check for industrialcraft or actuallyadditions ores
+            if (blockState.toString().matches("ic2:resource|actuallyadditions:block_misc")) {
                 // if its an ic2 resource it has a property named type that defines what ore it is.
 
                 UnmodifiableIterator<IProperty<?>> keySetIter = blockState.getProperties().keySet().iterator();
@@ -54,12 +55,14 @@ public class EventHandler {
                 for (int i = 0; i < blockState.getProperties().size(); i++) {
                     Comparable<?> value = valueIter.next();
                     if (keySetIter.next().getName().equals("type")) {
-                        return value.toString().matches("^(.*)_ore$") ? value.toString() : null;
+                        return value.toString().matches("^.*_ore$|^ORE_.*$") ? value.toString() : null;
                     }
                 }
 
                 return null;
             }
+
+            //
 
             Block defaultBlock = blockState.getBlock() == Blocks.LIT_REDSTONE_ORE ? Blocks.REDSTONE_ORE : blockState.getBlock();
             ItemStack stack = new ItemStack(defaultBlock, 1);
@@ -69,6 +72,19 @@ public class EventHandler {
             }
 
             int[] blockIDs = OreDictionary.getOreIDs(stack);
+
+            // check for any _ore suffix that isnt already registered
+            if (blockIDs.length == 0 && blockState.toString().matches("^.*:.*_ore$")) {
+                Pattern p = Pattern.compile("^.*:(.*)_ore$");
+                Matcher m = p.matcher(blockState.toString());
+
+                m.matches();
+
+                // quark:biotite_ore -> oreBiotite
+                OreDictionary.registerOre("ore"+m.group(1).substring(0,1).toUpperCase()+m.group(1).substring(1), blockState.getBlock());
+
+                blockIDs = OreDictionary.getOreIDs(stack);
+            }
 
             return Arrays.stream(blockIDs)
                     .mapToObj(OreDictionary::getOreName)
