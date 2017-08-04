@@ -1,38 +1,36 @@
 package arlyon.veining;
 
-import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.util.EnumHelper;
 
-import java.util.Arrays;
-
+/**
+ * The enchantment class for the Veining enchantment.
+ */
 public class Enchantment extends net.minecraft.enchantment.Enchantment {
 
-    // creates a new enchantment type called axe that can be applied on any tool with the class axe.
-    private static EnumEnchantmentType PICKAXE = EnumHelper.addEnchantmentType("PICKAXE", item -> item.getToolClasses(new ItemStack(item)).stream().anyMatch(toolClass -> toolClass.equals("pickaxe")));
-
-    public Enchantment(Rarity rarityIn, EntityEquipmentSlot... slots) {
-        super(rarityIn, PICKAXE, slots);
+    /**
+     * Sets name and registry name and assigns the proper predicate.
+     *
+     * @param rarityIn the rarity of the enchantment
+     * @param slots the slots in which the enchantment is valid
+     */
+    Enchantment(Rarity rarityIn, EntityEquipmentSlot... slots) {
+        super(rarityIn, Constants.PICKAXE, slots); // to be eligible for this enchantment, you must match the PICKAXE predicate
         setName("veining");
         setRegistryName("veining");
-
-        // add it to the creative tab
-        EnumEnchantmentType[] enchantmentTypes = CreativeTabs.TOOLS.getRelevantEnchantmentTypes();
-        enchantmentTypes = Arrays.copyOf(enchantmentTypes, enchantmentTypes.length+1);
-        enchantmentTypes[enchantmentTypes.length-1] = PICKAXE;
-
-        CreativeTabs.TOOLS.setRelevantEnchantmentTypes(enchantmentTypes);
     }
 
     /**
      * Returns the minimal value of enchantability needed on the enchantment level passed.
+     *   - Settled on 32, which can be nullified or doubled based on the configuration.
+     *
+     * @param enchantmentLevel The level you want to get minimum enchantability weight for.
      */
-    public int getMinEnchantability(int enchantmentLevel) { return 35; }
+    public int getMinEnchantability(int enchantmentLevel) { return (32 * Configuration.enchantmentRarity)/100; }
 
     /**
-     * Returns the maximum value of enchantability needed on the enchantment level passed.
+     * Returns the maximum value of enchantability needed on the enchantment level passed.ee
+     *
+     * @param enchantmentLevel The level you want to get maximun enchantability weight for.
      */
     public int getMaxEnchantability(int enchantmentLevel) {
         return this.getMinEnchantability(enchantmentLevel) + 50;

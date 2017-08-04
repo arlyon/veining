@@ -5,3 +5,12 @@ version 1.0
     - enable/disable "ore arching" to mine connected veins of different ore types
     - supports all properly registered axes
     - supports all ores in oredict
+
+version 1.1
+
+    - add compatibility for some more mods (IC, AA, Quark, and potentially more)
+    - add chinese localization
+    - adjusted rarity slightly to be more obtainable
+    - added rarity adjustment in config
+    - moved the creativetabs to the clientside proxy
+    - thorough code documentation

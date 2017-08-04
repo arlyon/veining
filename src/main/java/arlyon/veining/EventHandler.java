@@ -25,25 +25,58 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Handles the destroying of trees with the veining enchantment.
+ * The event handler container for both the VeiningEvent and the RegistryEvent
  */
-
 public class EventHandler {
+
+    /**
+     * The veining event subscriber class, which contains all the required functions for the subscriber.
+     */
     @Mod.EventBusSubscriber(modid = Constants.MODID)
     public static class VeiningEventHandler {
 
         /**
-         * Determines if, given the config files, that the block should be veined
+         * Intercepts the block break event to inject the veining enchantment logic.
          *
-         * @return a boolean value indicating whether the block should be destroyed
+         * @param event the block break event that is called each time a minecraft block is broken.
          */
-        private static boolean shouldBreak(String veinType, IBlockState blockState) {
-            String oreType = getOreDictType(blockState);
+        @SubscribeEvent
+        public static void veiningSubscriber(BlockEvent.BreakEvent event) {
+            EntityPlayer thePlayer = event.getPlayer();
+            ItemStack mainHandItem = thePlayer.getHeldItemMainhand();
+            int enchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Constants.veining, mainHandItem);
 
-            return (veinType != null && oreType != null) && // should break when neither are null and..
-                    (Configuration.multiOre || oreType.equals(veinType)); // when either multiore is on or the oretype is equal to the veintype
+            // ignore anything without the enchantment
+            if (enchantmentLevel == 0) {
+                return;
+            }
+
+            IBlockState blockState = event.getState();
+            String veinType = getOreDictType(blockState);
+
+
+            // if it isn't an ore, then end
+            if (!shouldBreak(veinType, blockState)) {
+                return;
+            }
+
+            // sneaking players break blocks normally
+            if ((thePlayer.isSneaking() && Configuration.disableWhenCrouched) || (!thePlayer.isSneaking() && Configuration.disableWhenStanding)) {
+                return;
+            }
+
+            World world = event.getWorld();
+            BlockPos blockPosition = event.getPos();
+
+            veiningAlgorithm(blockState, blockPosition, world, mainHandItem, thePlayer, veinType);
         }
 
+        /**
+         * Returns the type of ore from a given block state.
+         *
+         * @param blockState The block state of the block to poll.
+         * @return A string containing the type of ore, or null if it isn't one.
+         */
         private static String getOreDictType(IBlockState blockState) {
 
             // check for industrialcraft or actuallyadditions ores
@@ -94,50 +127,55 @@ public class EventHandler {
         }
 
         /**
-         * Intercepts the block break event to inject the veining enchantment logic.
+         * Determines if, given the config files, the block should be veined.
          *
-         * @param event the block break event that is called each time a minecraft block is broken.
+         * @return A boolean value indicating whether the block should be destroyed.
          */
-        @SubscribeEvent
-        public static void veiningSubscriber(BlockEvent.BreakEvent event) {
-            EntityPlayer thePlayer = event.getPlayer();
-            ItemStack mainHandItem = thePlayer.getHeldItemMainhand();
-            int enchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Constants.veining, mainHandItem);
+        private static boolean shouldBreak(String veinType, IBlockState blockState) {
+            String oreType = getOreDictType(blockState);
 
-            // ignore anything without the enchantment
-            if (enchantmentLevel == 0) {
-                return;
-            }
-
-            IBlockState blockState = event.getState();
-            String veinType = getOreDictType(blockState);
-
-
-            // if it isn't an ore, then end
-            if (!shouldBreak(veinType, blockState)) {
-                return;
-            }
-
-            // sneaking players break blocks normally
-            if ((thePlayer.isSneaking() && Configuration.disableWhenCrouched) || (!thePlayer.isSneaking() && Configuration.disableWhenStanding)) {
-                return;
-            }
-
-            World world = event.getWorld();
-            BlockPos blockPosition = event.getPos();
-
-            veiningAlgorithm(blockState, blockPosition, world, mainHandItem, thePlayer, veinType);
+            return (veinType != null && oreType != null) && // should break only when veinType & oreType != null and
+                    (Configuration.multiOre || oreType.equals(veinType)); // when multiOre == true or the oreType == veinType
         }
 
         /**
-         * Attempts to break the block and returns false if the tool breaks during the operation.
+         * Breaks the block, and then tests surrounding blocks if they should be included,
+         * recursively calling itself on neighbouring blocks.
          *
-         * @param blockState
-         * @param blockPosition
-         * @param world
-         * @param mainHandItem
-         * @param thePlayer
-         * @return
+         * @param blockState The state of the block that is to be broken.
+         * @param blockPosition The position of the block that is to be broken.
+         * @param world The current worldstate.
+         * @param mainHandItem The item currently in the main hand (ie the tool with the enchantment).
+         * @param thePlayer The player executing the enchantment.
+         * @param veinType The type of ore being mined.
+         */
+        private static void veiningAlgorithm(IBlockState blockState, BlockPos blockPosition, World world, ItemStack mainHandItem, EntityPlayer thePlayer, String veinType) {
+            // try to break the block and if the tool breaks and returns false then return
+            if (!tryBreakBlock(blockState, blockPosition, world, mainHandItem, thePlayer)) {
+                return;
+            }
+
+            // for each of the cardinal directions (NSEW + UD) poll for a vein and recursively try to break it
+            for (EnumFacing direction : EnumFacing.values()) {
+                BlockPos nextBlockPosition = blockPosition.offset(direction);
+                IBlockState nextBlockState = world.getBlockState(nextBlockPosition);
+
+                // if the next block should be broken, call the algorithm on it as well
+                if (shouldBreak(veinType, nextBlockState)) {
+                    veiningAlgorithm(nextBlockState, nextBlockPosition, world, mainHandItem, thePlayer, veinType);
+                }
+            }
+        }
+
+        /**
+         * Attempts to break a block, doing the appropriate damage to the tool in the process.
+         *
+         * @param blockState The state of the block that is to be broken.
+         * @param blockPosition The position of the block that is to be broken.
+         * @param world The current worldstate.
+         * @param mainHandItem The item currently in the main hand (ie the tool with the enchantment).
+         * @param thePlayer The player executing the enchantment.
+         * @return False if the tool breaks and the algorithm must stop. Otherwise, true.
          */
         private static boolean tryBreakBlock(IBlockState blockState, BlockPos blockPosition, World world, ItemStack mainHandItem, EntityPlayer thePlayer) {
 
@@ -164,27 +202,19 @@ public class EventHandler {
             return true;
         }
 
-        private static void veiningAlgorithm(IBlockState blockState, BlockPos blockPosition, World world, ItemStack mainHandItem, EntityPlayer thePlayer, String veinType) {
-            // try to break the block and if it fails then return
-            if (!tryBreakBlock(blockState, blockPosition, world, mainHandItem, thePlayer)) {
-                return;
-            }
-
-            // for each of the cardinal directions (NSEW + UD) poll for a log and recursively try and break it
-            for (EnumFacing direction : EnumFacing.values()) {
-                BlockPos nextBlockPosition = blockPosition.offset(direction);
-                IBlockState nextBlockState = world.getBlockState(nextBlockPosition);
-
-                // if the block in the specified direction relative to the parent block is a log, then cut it down too!
-                if (shouldBreak(veinType, nextBlockState)) {
-                    veiningAlgorithm(nextBlockState, nextBlockPosition, world, mainHandItem, thePlayer, veinType);
-                }
-            }
-        }
     }
 
+    /**
+     * The enchantment registry subscriber class.
+     */
     @Mod.EventBusSubscriber(modid = Constants.MODID)
     public static class EnchantmentHandler {
+
+        /**
+         * At the appropriate time to register enchantments, the subscriber registers the Veining enchantment.
+         *
+         * @param event The RegistryEvent.Register<Enchantment> event.
+         */
         @SubscribeEvent
         public static void registerEnchantment(RegistryEvent.Register<net.minecraft.enchantment.Enchantment> event) {
             event.getRegistry().register(Constants.veining);

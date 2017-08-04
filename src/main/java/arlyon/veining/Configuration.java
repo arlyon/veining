@@ -8,8 +8,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 /**
  * Created by Alexander Lyon on 30.07.2017.
+ *
+ * Controls the configurable options in the mod config menu.
  */
-
 @Config(modid = Constants.MODID)
 public class Configuration {
 
@@ -30,13 +31,18 @@ public class Configuration {
     @Config.RangeInt(min=0, max=5)
     public static int durabilityDamage = 2;
 
+    @Config.Name("Rarity (%)")
+    @Config.Comment("Controls how rare the enchantment is (with 100% being as the mod was intended). It is recommended to keep it between 80% and 120%, and more statistics can be found on the wiki.")
+    @Config.RangeInt(min=0, max=200)
+    public static int enchantmentRarity = 100;
+
     @Mod.EventBusSubscriber
     private static class EventHandler {
 
         /**
          * Inject the new values and save to the config file when the config has been changed from the GUI.
          *
-         * @param event The event
+         * @param event The config change event
          */
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
