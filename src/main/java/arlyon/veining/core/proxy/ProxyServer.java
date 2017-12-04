@@ -1,4 +1,4 @@
-package arlyon.veining.proxy;
+package arlyon.veining.core.proxy;
 
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;

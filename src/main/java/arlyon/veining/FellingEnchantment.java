@@ -10,7 +10,7 @@ import java.util.Arrays;
 /**
  * The enchantment class for the Veining enchantment.
  */
-public class Enchantment extends net.minecraft.enchantment.Enchantment {
+public class FellingEnchantment extends net.minecraft.enchantment.Enchantment {
 
     /**
      * Pickaxe enchantment type.
@@ -26,7 +26,7 @@ public class Enchantment extends net.minecraft.enchantment.Enchantment {
      * @param rarityIn the rarity of the enchantment
      * @param slots the slots in which the enchantment is valid
      */
-    Enchantment(Rarity rarityIn, EntityEquipmentSlot... slots) {
+    FellingEnchantment(Rarity rarityIn, EntityEquipmentSlot... slots) {
         super(rarityIn, PICKAXE, slots); // to be eligible for this enchantment, you must match the PICKAXE predicate
         setName("veining");
         setRegistryName("veining");
@@ -43,7 +43,7 @@ public class Enchantment extends net.minecraft.enchantment.Enchantment {
     /**
      * Returns the maximum value of enchantability needed on the enchantment level passed.ee
      *
-     * @param enchantmentLevel The level you want to get maximun enchantability weight for.
+     * @param enchantmentLevel The level you want to get maximum enchantability weight for.
      */
     public int getMaxEnchantability(int enchantmentLevel) {
         return this.getMinEnchantability(enchantmentLevel) + 50;
