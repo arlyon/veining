@@ -1,29 +1,27 @@
 package arlyon.veining.events;
 
 import arlyon.veining.Configuration;
-import arlyon.veining.Constants;
-import com.google.common.collect.UnmodifiableIterator;
-import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
+import arlyon.veining.Veining;
+import arlyon.veining.network.PlayerSettings;
+import arlyon.veining.support.UniqueQueue;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+
+import static net.minecraft.init.Enchantments.FORTUNE;
+import static net.minecraft.init.Enchantments.SILK_TOUCH;
 
 /**
  * The veining event subscriber class, which contains all the required functions for the subscriber.
@@ -36,40 +34,73 @@ public class VeiningEventHandler {
      * @param event the block break event that is called each time a minecraft block is broken.
      */
     @SubscribeEvent
-    public static void veiningSubscriber(BlockEvent.BreakEvent event) {
+    public void veiningSubscriber(BreakEvent event) {
+        if (shouldStartVeining(event)) veiningAlgorithm(
+            event.getPos(),
+            event.getWorld(),
+            event.getPlayer(),
+            getOreType(event.getState())
+        );
+    }
 
-        // if the client is running this code, then back off and let the server do its job
-        if (event.getWorld().isRemote) {
-            return;
+    /**
+     * Makes some checks to see if it is a valid felling event.
+     *
+     * @param event The break event.
+     * @return Whether the felling should run.
+     */
+    private boolean shouldStartVeining(BreakEvent event) {
+        return mainHandHasEnchantment(event) &&
+                eventIsServerSide(event) &&
+                configAllowsBreak(event) &&
+                getOreType(event.getState()) != null;
+    }
+
+    /**
+     * Checks if the event is server-side (mainly for readability).
+     *
+     * @param event The break event.
+     * @return Whether the event is being called on the server side.
+     */
+    private static boolean eventIsServerSide(BlockEvent.BreakEvent event) {
+        return !event.getWorld().isRemote; // remote compared to the server
+    }
+
+    /**
+     * A simple check to see if the player that caused the break event has the enchantment in their main hand.
+     *
+     * @param event The block break event.
+     * @return Whether the player's main hand is enchanted.
+     */
+    private static boolean mainHandHasEnchantment(BlockEvent.BreakEvent event) {
+        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, event.getPlayer().getHeldItemMainhand()) != 0;
+    }
+
+    /**
+     * Checks if the player's settings enables the break.
+     * @param event The break event.
+     * @return Whether the current server settings allow the break.
+     */
+    private static boolean configAllowsBreak(BreakEvent event) {
+        PlayerSettings playerSettings = getOrCreatePlayerSettings(event.getPlayer());
+        return event.getPlayer().isSneaking() ? !playerSettings.disableWhenCrouched : !playerSettings.disableWhenStanding;
+    }
+
+    /**
+     * Given a player, gets or creates a player settings profile for a user.
+     *
+     * @param thePlayer The player to check.
+     * @return The given player's settings.
+     */
+    private static PlayerSettings getOrCreatePlayerSettings(EntityPlayer thePlayer) {
+        PlayerSettings playerSettings = Veining.playerSettings.get(thePlayer.getGameProfile().hashCode());
+
+        if (playerSettings == null) {
+            playerSettings = new PlayerSettings(true, true);
+            thePlayer.sendMessage(new TextComponentString("Your Felling settings aren't synced with the server. Please update the settings in the mod config to resend them."));
         }
 
-        EntityPlayer thePlayer = event.getPlayer();
-        ItemStack mainHandItem = thePlayer.getHeldItemMainhand();
-        int enchantmentLevel = EnchantmentHelper.getEnchantmentLevel(Constants.veining, mainHandItem);
-
-        // ignore anything without the enchantment
-        if (enchantmentLevel == 0) {
-            return;
-        }
-
-        IBlockState blockState = event.getState();
-        String veinType = getOreDictType(blockState);
-
-
-        // if it isn't an ore, then end
-        if (!shouldBreak(veinType, blockState)) {
-            return;
-        }
-
-        // sneaking players break blocks normally
-        if ((thePlayer.isSneaking() && Configuration.disableWhenCrouched) || (!thePlayer.isSneaking() && Configuration.disableWhenStanding)) {
-            return;
-        }
-
-        World world = event.getWorld();
-        BlockPos blockPosition = event.getPos();
-
-        veiningAlgorithm(blockState, blockPosition, world, mainHandItem, thePlayer, veinType);
+        return playerSettings;
     }
 
     /**
@@ -78,53 +109,67 @@ public class VeiningEventHandler {
      * @param blockState The block state of the block to poll.
      * @return A string containing the type of ore, or null if it isn't one.
      */
-    private static String getOreDictType(IBlockState blockState) {
+    private static String getOreType(IBlockState blockState) {
 
-        // check for industrialcraft or actuallyadditions ores
-        if (blockState.toString().matches("ic2:resource|actuallyadditions:block_misc")) {
-            // if its an ic2 resource it has a property named type that defines what ore it is.
-
-            UnmodifiableIterator<IProperty<?>> keySetIter = blockState.getProperties().keySet().iterator();
-            UnmodifiableIterator<Comparable<?>> valueIter = blockState.getProperties().values().iterator();
-            for (int i = 0; i < blockState.getProperties().size(); i++) {
-                Comparable<?> value = valueIter.next();
-                if (keySetIter.next().getName().equals("type")) {
-                    return value.toString().matches("^.*_ore$|^ORE_.*$") ? value.toString() : null;
-                }
-            }
-
-            return null;
+        // TODO solve this irritating workaround for coal
+        if (blockState.getBlock().getUnlocalizedName().equals("tile.oreCoal")) {
+            return "oreCoal";
         }
 
-        //
+        ItemStack stack = new ItemStack(blockState.getBlock().getItemDropped(null, null, 0));
+        if (stack.isEmpty()) return null;
 
-        Block defaultBlock = blockState.getBlock() == Blocks.LIT_REDSTONE_ORE ? Blocks.REDSTONE_ORE : blockState.getBlock();
-        ItemStack stack = new ItemStack(defaultBlock, 1);
-
-        if (stack.isEmpty()) {
-            return null;
-        }
-
-        int[] blockIDs = OreDictionary.getOreIDs(stack);
-
-        // check for any _ore suffix that isnt already registered
-        if (blockIDs.length == 0 && blockState.toString().matches("^.*:.*_ore$")) {
-            Pattern p = Pattern.compile("^.*:(.*)_ore$");
-            Matcher m = p.matcher(blockState.toString());
-
-            m.matches();
-
-            // quark:biotite_ore -> oreBiotite
-            OreDictionary.registerOre("ore"+m.group(1).substring(0,1).toUpperCase()+m.group(1).substring(1), blockState.getBlock());
-
-            blockIDs = OreDictionary.getOreIDs(stack);
-        }
-
-        return Arrays.stream(blockIDs)
+        return Arrays.stream(OreDictionary.getOreIDs(stack))
                 .mapToObj(OreDictionary::getOreName)
-                .filter(name -> name.matches("^ore(.+)"))
+                .filter(name -> name.contains("ore") || name.contains("dust") || name.contains("gem"))
                 .findFirst()
                 .orElse(null);
+    }
+
+    /**
+     * Breaks the block at a given position and then for
+     * each path continues felling on that block as well.
+     *
+     * @param blockPosition The position of the block.
+     * @param world         The world.
+     * @param thePlayer     The player.
+     * @param veinType      The type of vein.
+     */
+    private static void veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer thePlayer, String veinType) {
+        Queue<BlockPos> blocks = new UniqueQueue<>();
+        blocks.offer(blockPosition);
+
+        while (blocks.size() > 0) {
+            blockPosition = blocks.remove(); // next block
+
+            breakBlock(blockPosition, world, thePlayer); // break
+            if (mainHandBreaksWhenDamaged(thePlayer)) return; // damage
+
+            getSurroundingBlocks(blockPosition, world, veinType).forEach(blocks::offer);
+        }
+    }
+
+    /**
+     * Checks all the blocks reached from the list of paths and checks
+     * if they are valid breaks before returning the lost of all valid.
+     *
+     * @param blockPosition The starting position.
+     * @param world         The world.
+     * @param veinType      The vein type.
+     * @return The block positions that are valid blocks to break.
+     */
+    private static Collection<BlockPos> getSurroundingBlocks(BlockPos blockPosition, World world, String veinType) {
+        List<BlockPos> newBlocks = new LinkedList<>();
+
+        for (EnumFacing dir : EnumFacing.values()) {
+            BlockPos nextBlockPosition = blockPosition.offset(dir);
+
+            if (shouldBreak(veinType, world.getBlockState(nextBlockPosition))) {
+                newBlocks.add(nextBlockPosition);
+            }
+        }
+
+        return newBlocks;
     }
 
     /**
@@ -133,74 +178,87 @@ public class VeiningEventHandler {
      * @return A boolean value indicating whether the block should be destroyed.
      */
     private static boolean shouldBreak(String veinType, IBlockState blockState) {
-        String oreType = getOreDictType(blockState);
+        String oreType = getOreType(blockState);
 
         return (veinType != null && oreType != null) && // should break only when veinType & oreType != null and
-                (Configuration.multiOre || oreType.equals(veinType)); // when multiOre == true or the oreType == veinType
-    }
-
-    /**
-     * Breaks the block, and then tests surrounding blocks if they should be included,
-     * recursively calling itself on neighbouring blocks.
-     *
-     * @param blockState The state of the block that is to be broken.
-     * @param blockPosition The position of the block that is to be broken.
-     * @param world The current worldstate.
-     * @param mainHandItem The item currently in the main hand (ie the tool with the enchantment).
-     * @param thePlayer The player executing the enchantment.
-     * @param veinType The type of ore being mined.
-     */
-    private static void veiningAlgorithm(IBlockState blockState, BlockPos blockPosition, World world, ItemStack mainHandItem, EntityPlayer thePlayer, String veinType) {
-        // try to break the block and if the tool breaks and returns false then return
-        if (!tryBreakBlock(blockState, blockPosition, world, mainHandItem, thePlayer)) {
-            return;
-        }
-
-        // for each of the cardinal directions (NSEW + UD) poll for a vein and recursively try to break it
-        for (EnumFacing direction : EnumFacing.values()) {
-            BlockPos nextBlockPosition = blockPosition.offset(direction);
-            IBlockState nextBlockState = world.getBlockState(nextBlockPosition);
-
-            // if the next block should be broken, call the algorithm on it as well
-            if (shouldBreak(veinType, nextBlockState)) {
-                veiningAlgorithm(nextBlockState, nextBlockPosition, world, mainHandItem, thePlayer, veinType);
-            }
-        }
+                (Configuration.serverSide.multiOre || oreType.equals(veinType)); // when multiOre == true or the oreType == veinType
     }
 
     /**
      * Attempts to break a block, doing the appropriate damage to the tool in the process.
+     * Additionally silk harvests if needed.
      *
-     * @param blockState The state of the block that is to be broken.
      * @param blockPosition The position of the block that is to be broken.
-     * @param world The current worldstate.
-     * @param mainHandItem The item currently in the main hand (ie the tool with the enchantment).
+     * @param world The current world state.
      * @param thePlayer The player executing the enchantment.
-     * @return False if the tool breaks and the algorithm must stop. Otherwise, true.
      */
-    private static boolean tryBreakBlock(IBlockState blockState, BlockPos blockPosition, World world, ItemStack mainHandItem, EntityPlayer thePlayer) {
+    private static void breakBlock(BlockPos blockPosition, World world, EntityPlayer thePlayer) {
 
-        // delete the block
-        world.setBlockToAir(blockPosition);
+        if (!thePlayer.capabilities.isCreativeMode) {
 
-        // if in creative, we are done
-        if (thePlayer.capabilities.isCreativeMode) {
-            return true;
+            int silkTouch = EnchantmentHelper.getEnchantmentLevel(SILK_TOUCH, thePlayer.getHeldItemMainhand());
+
+            if (
+                world.getBlockState(blockPosition).getBlock().canSilkHarvest(null, null, world.getBlockState(blockPosition), null) &&
+                silkTouch == 1 &&
+                Configuration.serverSide.silkTouch
+            ) {
+
+                world.getBlockState(blockPosition).getBlock().harvestBlock(
+                        world,
+                        thePlayer,
+                        blockPosition,
+                        world.getBlockState(blockPosition),
+                        null,
+                        thePlayer.getHeldItemMainhand()
+                );
+
+            } else {
+
+                int fortune = EnchantmentHelper.getEnchantmentLevel(FORTUNE, thePlayer.getHeldItemMainhand());
+
+                world.getBlockState(blockPosition).getBlock().dropBlockAsItem(world, blockPosition, world.getBlockState(blockPosition), fortune); // drop the block
+                world.getBlockState(blockPosition).getBlock().dropXpOnBlockBreak( // drop the xp
+                        world,
+                        blockPosition,
+                        world.getBlockState(blockPosition).getBlock().getExpDrop(
+                                world.getBlockState(blockPosition),
+                                world,
+                                blockPosition,
+                                fortune
+                        )
+                );
+            }
         }
 
-        // drop the block
-        blockState.getBlock().dropBlockAsItem(world,
-                blockPosition,
-                blockState,
-                EnchantmentHelper.getEnchantmentLevel(Enchantments.FORTUNE, mainHandItem));
+        world.setBlockToAir(blockPosition); // delete the block
+    }
 
-        // damage the tool, and if it is broken, return false (which signifies we should halt operation)
-        if (mainHandItem.attemptDamageItem(Configuration.durabilityDamage, new Random(), (EntityPlayerMP) thePlayer)) {
-            thePlayer.inventory.deleteStack(mainHandItem);
-            return false;
-        }
+    /**
+     * Deals damage to the enchant and breaks if needed.
+     *
+     * @param thePlayer The player.
+     * @return Whether the tool was broken.
+     */
+    private static boolean mainHandBreaksWhenDamaged(EntityPlayer thePlayer) {
+        if (thePlayer.isCreative()) return false;
+        if (!toolBreaksWhenDamaged((EntityPlayerMP) thePlayer, thePlayer.getHeldItemMainhand())) return false;
 
+        thePlayer.inventory.deleteStack(thePlayer.getHeldItemMainhand());
         return true;
     }
 
+    /**
+     * Damages the given item and returns whether it should break.
+     *
+     * @param thePlayer The player to deal damage to.
+     * @param theTool   The tool to deal damage to.
+     * @return Whether the tool breaks.
+     */
+    private static boolean toolBreaksWhenDamaged(EntityPlayerMP thePlayer, ItemStack theTool) {
+        return theTool.attemptDamageItem(
+                Configuration.serverSide.durabilityDamage,
+                new Random(),
+                thePlayer);
+    }
 }

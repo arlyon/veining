@@ -1,0 +1,11 @@
+{
+  "homepage": "https://minecraft.curseforge.com/projects/veining",
+  "1.12": {
+    "1.1.0": "https://github.com/arlyon/veining/releases/tag/1.0.0/1.12",
+    "1.0.0": "https://github.com/arlyon/veining/releases/tag/1.1.0/1.12"
+  },
+  "promos": {
+    "1.12-latest": "1.1.0",
+    "1.12-recommended": "1.1.0"
+  }
+}

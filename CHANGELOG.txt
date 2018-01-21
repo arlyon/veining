@@ -1,10 +1,11 @@
-version 1.0
+version 1.2
 
-    - enchantment book
-    - enable/disable when standing and crouching
-    - enable/disable "ore arching" to mine connected veins of different ore types
-    - supports all properly registered axes
-    - supports all ores in oredict
+    - rewrite algorithm
+    - support server- and client-side settings separately
+    - correctly drop experience
+    - works with silk touch
+    - should work with most mods
+    - lots of (google translate) localization
 
 version 1.1
 
@@ -15,3 +16,11 @@ version 1.1
     - moved the creativetabs to the clientside proxy
     - thorough code documentation
     - sort out some client/serverside problems
+
+version 1.0
+
+    - enchantment book
+    - enable/disable when standing and crouching
+    - enable/disable "ore arching" to mine connected veins of different ore types
+    - supports all properly registered axes
+    - supports all ores in oredict
