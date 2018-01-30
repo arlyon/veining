@@ -38,14 +38,3 @@ When you have done this, the enchantment will be available in game. 
 ## Mod Packs
 
 Feel free to use this in any mod-pack you please. I would appreciate a small mention back to this page but it's not necessary. Lastly, it would be cool if you send me a link to your pack so I can check it out!
-
-## Developing
-
-### Update Checklist
-
-- bump version number in `Veining.class` and in `mcmod.info`
-- bump version number in `build.properties`
-- add changes to changelog
-- build and test game
-- commit and add tag
-- push to curseforge
