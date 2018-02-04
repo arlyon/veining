@@ -6,6 +6,7 @@ import arlyon.veining.network.PlayerSettings;
 import arlyon.veining.support.UniqueQueue;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -39,7 +40,7 @@ public class VeiningEventHandler {
             event.getPos(),
             event.getWorld(),
             event.getPlayer(),
-            getOreType(event.getState())
+            getOreType(event.getState(), event.getPlayer())
         );
     }
 
@@ -50,10 +51,10 @@ public class VeiningEventHandler {
      * @return Whether the felling should run.
      */
     private boolean shouldStartVeining(BreakEvent event) {
-        return mainHandHasEnchantment(event) &&
+        return mainHandFellingLevel(event.getPlayer()) > 0 &&
                 eventIsServerSide(event) &&
-                configAllowsBreak(event) &&
-                getOreType(event.getState()) != null;
+                configAllowsBreak(event.getPlayer()) &&
+                getOreType(event.getState(), event.getPlayer()) != null;
     }
 
     /**
@@ -69,21 +70,30 @@ public class VeiningEventHandler {
     /**
      * A simple check to see if the player that caused the break event has the enchantment in their main hand.
      *
-     * @param event The block break event.
-     * @return Whether the player's main hand is enchanted.
+     * @param player The player who is holding the tool.
+     * @return The enchantment level.
      */
-    private static boolean mainHandHasEnchantment(BlockEvent.BreakEvent event) {
-        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, event.getPlayer().getHeldItemMainhand()) != 0;
+    private static int mainHandFellingLevel(EntityPlayer player) {
+        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, player.getHeldItemMainhand());
     }
 
     /**
-     * Checks if the player's settings enables the break.
-     * @param event The break event.
+     * Gets the fortune level of the tool in the player's main hand.
+     * @param player The player who is holding the tool.
+     * @return The enchantment level.
+     */
+    private static int mainHandFortuneLevel(EntityPlayer player) {
+        return EnchantmentHelper.getEnchantmentLevel(FORTUNE, player.getHeldItemMainhand());
+    }
+
+    /**
+     * Checks if the block should break according to the player's settings.
+     * @param player The player to check.
      * @return Whether the current server settings allow the break.
      */
-    private static boolean configAllowsBreak(BreakEvent event) {
-        PlayerSettings playerSettings = getOrCreatePlayerSettings(event.getPlayer());
-        return event.getPlayer().isSneaking() ? !playerSettings.disableWhenCrouched : !playerSettings.disableWhenStanding;
+    private static boolean configAllowsBreak(EntityPlayer player) {
+        PlayerSettings playerSettings = getOrCreatePlayerSettings(player);
+        return player.isSneaking() ? !playerSettings.disableWhenCrouched : !playerSettings.disableWhenStanding;
     }
 
     /**
@@ -109,14 +119,15 @@ public class VeiningEventHandler {
      * @param blockState The block state of the block to poll.
      * @return A string containing the type of ore, or null if it isn't one.
      */
-    private static String getOreType(IBlockState blockState) {
+    private static String getOreType(IBlockState blockState, EntityPlayer player) {
 
         // TODO solve this irritating workaround for coal
         if (blockState.getBlock().getUnlocalizedName().equals("tile.oreCoal")) {
             return "oreCoal";
         }
 
-        ItemStack stack = new ItemStack(blockState.getBlock().getItemDropped(null, null, 0));
+        Random rand = new Random();
+        ItemStack stack = new ItemStack(blockState.getBlock().getItemDropped(blockState, rand, mainHandFortuneLevel(player)));
         if (stack.isEmpty()) return null;
 
         return Arrays.stream(OreDictionary.getOreIDs(stack))
@@ -132,20 +143,20 @@ public class VeiningEventHandler {
      *
      * @param blockPosition The position of the block.
      * @param world         The world.
-     * @param thePlayer     The player.
+     * @param player     The player.
      * @param veinType      The type of vein.
      */
-    private static void veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer thePlayer, String veinType) {
+    private static void veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player, String veinType) {
         Queue<BlockPos> blocks = new UniqueQueue<>();
         blocks.offer(blockPosition);
 
         while (blocks.size() > 0) {
-            blockPosition = blocks.remove(); // next block
+            blockPosition = blocks.remove();
 
-            breakBlock(blockPosition, world, thePlayer); // break
-            if (mainHandBreaksWhenDamaged(thePlayer)) return; // damage
+            breakBlock(blockPosition, world, player);
+            if (mainHandBreaksWhenDamaged(player)) return;
 
-            getSurroundingBlocks(blockPosition, world, veinType).forEach(blocks::offer);
+            getSurroundingBlocks(blockPosition, world, veinType, player).forEach(blocks::offer);
         }
     }
 
@@ -158,13 +169,13 @@ public class VeiningEventHandler {
      * @param veinType      The vein type.
      * @return The block positions that are valid blocks to break.
      */
-    private static Collection<BlockPos> getSurroundingBlocks(BlockPos blockPosition, World world, String veinType) {
+    private static Collection<BlockPos> getSurroundingBlocks(BlockPos blockPosition, World world, String veinType, EntityPlayer player) {
         List<BlockPos> newBlocks = new LinkedList<>();
 
         for (EnumFacing dir : EnumFacing.values()) {
             BlockPos nextBlockPosition = blockPosition.offset(dir);
 
-            if (shouldBreak(veinType, world.getBlockState(nextBlockPosition))) {
+            if (shouldBreak(veinType, world.getBlockState(nextBlockPosition), player)) {
                 newBlocks.add(nextBlockPosition);
             }
         }
@@ -177,8 +188,8 @@ public class VeiningEventHandler {
      *
      * @return A boolean value indicating whether the block should be destroyed.
      */
-    private static boolean shouldBreak(String veinType, IBlockState blockState) {
-        String oreType = getOreType(blockState);
+    private static boolean shouldBreak(String veinType, IBlockState blockState, EntityPlayer player) {
+        String oreType = getOreType(blockState, player);
 
         return (veinType != null && oreType != null) && // should break only when veinType & oreType != null and
                 (Configuration.serverSide.multiOre || oreType.equals(veinType)); // when multiOre == true or the oreType == veinType
@@ -199,7 +210,7 @@ public class VeiningEventHandler {
             int silkTouch = EnchantmentHelper.getEnchantmentLevel(SILK_TOUCH, thePlayer.getHeldItemMainhand());
 
             if (
-                world.getBlockState(blockPosition).getBlock().canSilkHarvest(null, null, world.getBlockState(blockPosition), null) &&
+                world.getBlockState(blockPosition).getBlock().canSilkHarvest(world, blockPosition, world.getBlockState(blockPosition), thePlayer) &&
                 silkTouch == 1 &&
                 Configuration.serverSide.silkTouch
             ) {
@@ -214,10 +225,7 @@ public class VeiningEventHandler {
                 );
 
             } else {
-
-                int fortune = EnchantmentHelper.getEnchantmentLevel(FORTUNE, thePlayer.getHeldItemMainhand());
-
-                world.getBlockState(blockPosition).getBlock().dropBlockAsItem(world, blockPosition, world.getBlockState(blockPosition), fortune); // drop the block
+                world.getBlockState(blockPosition).getBlock().dropBlockAsItem(world, blockPosition, world.getBlockState(blockPosition), mainHandFortuneLevel(thePlayer)); // drop the block
                 world.getBlockState(blockPosition).getBlock().dropXpOnBlockBreak( // drop the xp
                         world,
                         blockPosition,
@@ -225,7 +233,7 @@ public class VeiningEventHandler {
                                 world.getBlockState(blockPosition),
                                 world,
                                 blockPosition,
-                                fortune
+                                mainHandFortuneLevel(thePlayer)
                         )
                 );
             }

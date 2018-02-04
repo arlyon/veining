@@ -1,3 +1,7 @@
+version 1.2.1
+
+    - fix null pointer exception when mining certain blocks
+
 version 1.2
 
     - rewrite algorithm
