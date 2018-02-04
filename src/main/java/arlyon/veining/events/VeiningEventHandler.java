@@ -269,7 +269,6 @@ public class VeiningEventHandler {
     private static boolean toolBreaksWhenDamaged(EntityPlayerMP thePlayer, ItemStack theTool) {
         return theTool.attemptDamageItem(
                 Configuration.serverSide.durabilityDamage,
-                new Random(),
-                thePlayer);
+                new Random());
     }
 }

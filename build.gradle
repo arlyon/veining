@@ -12,7 +12,7 @@ buildscript {
         maven { url = "http://files.minecraftforge.net/maven" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
     }
 }
 
@@ -57,12 +57,12 @@ curseforge {
         changelog = file('./CHANGELOG.txt')
         releaseType = 'release'
         addGameVersion '1.8'
-        addGameVersion '1.12'
-        addGameVersion '1.12.1'
-        addGameVersion '1.12.2'
+        addGameVersion '1.11'
+        addGameVersion '1.11.1'
+        addGameVersion '1.11.2'
 
         mainArtifact(jar) {
-            displayName = "Veining version ${config.mod_version} for Minecraft 1.12.x"
+            displayName = "Veining version ${config.mod_version} for Minecraft 1.11.x"
         }
     }
 }

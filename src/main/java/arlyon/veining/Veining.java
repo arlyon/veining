@@ -31,7 +31,7 @@ public class Veining {
     static final String MODID = "veining";
     static final String VERSION = "1.2.1";
     static final String UPDATE_JSON = "https://raw.githubusercontent.com/arlyon/veining/1.12.x/update.json";
-    static final String MINECRAFT_VERSIONS = "[1.12.0, 1.12.2]"; // starting with 1.12, up to 1.12.2
+    static final String MINECRAFT_VERSIONS = "[1.11.0, 1.11.2]"; // starting with 1.11, up to 1.11.2
 
     public static final VeiningEnchantment veining = new VeiningEnchantment(
             net.minecraft.enchantment.Enchantment.Rarity.UNCOMMON,
