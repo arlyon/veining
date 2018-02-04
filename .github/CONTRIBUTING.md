@@ -22,3 +22,4 @@ To set up the development environment:
 - build and test game
 - commit and add tag
 - push to curseforge
+- add the build to update.json

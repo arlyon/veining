@@ -122,8 +122,11 @@ public class VeiningEventHandler {
     private static String getOreType(IBlockState blockState, EntityPlayer player) {
 
         // TODO solve this irritating workaround for coal
-        if (blockState.getBlock().getUnlocalizedName().equals("tile.oreCoal")) {
-            return "oreCoal";
+        if (
+                blockState.getBlock().getUnlocalizedName().equals("tile.oreCoal") ||
+                blockState.getBlock().getUnlocalizedName().equals("tile.oreLapis")
+        ) {
+            return blockState.getBlock().getUnlocalizedName();
         }
 
         Random rand = new Random();
