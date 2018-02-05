@@ -1,4 +1,4 @@
-# Veining
+# ![veining logo](/src/main/resources/assets/veining/textures/logo.png) Veining 
 
 If you use this mod let me know! It's my second one and I'd love to get some feedback.
 
@@ -37,4 +37,11 @@ When you have done this, the enchantment will be available in game. 
 
 ## Mod Packs
 
-Feel free to use this in any mod-pack you please. I would appreciate a small mention back to this page but it's not necessary. Lastly, it would be cool if you send me a link to your pack so I can check it out!
+Feel free to use this in any mod-pack you please. I would appreciate a small mention back to this page but it's not 
+necessary. Lastly, it would be cool if you send me a link to your pack so I can check it out!
+
+-----------------
+
+Veining is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US).
+
+[<p align="center"><img style="margin:auto" src="https://licensebuttons.net/l/by-nc-sa/3.0/88x31.png"></p>](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en_US)
