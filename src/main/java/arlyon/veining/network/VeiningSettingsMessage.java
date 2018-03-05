@@ -72,7 +72,7 @@ public class VeiningSettingsMessage implements IMessage {
             // This code is run on the server side. So you can do server-side calculations here
             EntityPlayerMP playerEntity = ctx.getServerHandler().player;
             Veining.playerSettings.put(playerEntity.getGameProfile().hashCode(), new PlayerSettings(message.disableWhenCrouched, message.disableWhenStanding));
-            Veining.log.info(String.format("%s sent client side settings to server.", playerEntity.getName()));
+            Veining.log.debug(String.format("%s sent client side settings to server.", playerEntity.getName()));
         }
     }
 }
