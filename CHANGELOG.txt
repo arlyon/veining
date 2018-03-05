@@ -1,3 +1,7 @@
+version 1.2.2
+
+    - change logger to debug to stop spam on large servers
+
 version 1.2.1
 
     - fix null pointer exception when mining certain blocks

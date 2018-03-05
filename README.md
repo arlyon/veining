@@ -2,11 +2,14 @@
 
 If you use this mod let me know! It's my second one and I'd love to get some feedback.
 
-Also check out the sister mod, Felling, which adds a similar enchantment to cut down entire trees at once.
+Also check out the sister mod, [Felling](https://github.com/arlyon/felling), which adds a similar enchantment to cut down entire trees at once.
 
 ## Usage
 
-Veining is a very simple mod, and fits very well into the original feeling of the game. The mod introduces a new enchantment to the world, Veining. It can be enchanted on any pickaxe and when mining veins, destroys the entire vein at once. It is quite rare (occurring about half the time with a good number of bookshelves) and works just like you would expect any other enchantment to.
+Veining is a very simple mod, and fits very well into the original feeling of the game. 
+The mod introduces a new enchantment to the world, Veining. It can be enchanted on any pickaxe and 
+when mining veins, destroys the entire vein at once. It is quite rare (occurring about half the time 
+with a good number of bookshelves) and works just like you would expect any other enchantment to.
 
 ## Support / Compatibility
 
