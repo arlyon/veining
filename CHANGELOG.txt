@@ -6,7 +6,7 @@ version 1.2.1
 
     - fix null pointer exception when mining certain blocks
 
-version 1.2
+version 1.2.0
 
     - rewrite algorithm
     - support server- and client-side settings separately
@@ -15,7 +15,7 @@ version 1.2
     - should work with most mods
     - lots of (google translate) localization
 
-version 1.1
+version 1.1.0
 
     - add compatibility for some more mods (IC, AA, Quark, and potentially more)
     - add chinese localization
@@ -25,7 +25,7 @@ version 1.1
     - thorough code documentation
     - sort out some client/serverside problems
 
-version 1.0
+version 1.0.0
 
     - enchantment book
     - enable/disable when standing and crouching

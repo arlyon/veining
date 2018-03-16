@@ -1,6 +1,9 @@
+If you have a bug report, please use the template below. Otherwise just 
+ignore it.
+
 ## Version Information
 
-Please substitute the [versions] for your specific details.
+Substitute the [versions] for your specific details.
 
 - Minecraft [version]
 - Forge: [version]
@@ -19,8 +22,4 @@ Please write a short message that would help me reproduce the issue.
 
 
 ## Crash Log (if appropriate)
-
-
-
-
 
