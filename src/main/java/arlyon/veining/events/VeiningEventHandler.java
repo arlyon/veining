@@ -4,6 +4,7 @@ import arlyon.veining.Configuration;
 import arlyon.veining.Veining;
 import arlyon.veining.network.PlayerSettings;
 import arlyon.veining.support.UniqueQueue;
+import net.minecraft.block.BlockOre;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static net.minecraft.init.Enchantments.FORTUNE;
 import static net.minecraft.init.Enchantments.SILK_TOUCH;
@@ -40,7 +42,7 @@ public class VeiningEventHandler {
             event.getPos(),
             event.getWorld(),
             event.getPlayer(),
-            getOreType(event.getState(), event.getPlayer())
+            getOreType(event.getState(), event.getPos(), event.getPlayer())
         );
     }
 
@@ -54,7 +56,7 @@ public class VeiningEventHandler {
         return mainHandFellingLevel(event.getPlayer()) > 0 &&
                 eventIsServerSide(event) &&
                 configAllowsBreak(event.getPlayer()) &&
-                getOreType(event.getState(), event.getPlayer()) != null;
+                getOreType(event.getState(), event.getPos(), event.getPlayer()) != null;
     }
 
     /**
@@ -119,25 +121,34 @@ public class VeiningEventHandler {
      * @param blockState The block state of the block to poll.
      * @return A string containing the type of ore, or null if it isn't one.
      */
-    private static String getOreType(IBlockState blockState, EntityPlayer player) {
+    private static String getOreType(IBlockState blockState, BlockPos position, EntityPlayer player) {
 
-        // TODO solve this irritating workaround for coal
-        if (
-                blockState.getBlock().getUnlocalizedName().equals("tile.oreCoal") ||
-                blockState.getBlock().getUnlocalizedName().equals("tile.oreLapis")
-        ) {
-            return blockState.getBlock().getUnlocalizedName();
-        }
+        ItemStack stack;
+        String oreName;
 
-        Random rand = new Random();
-        ItemStack stack = new ItemStack(blockState.getBlock().getItemDropped(blockState, rand, mainHandFortuneLevel(player)));
+        stack = new ItemStack(blockState.getBlock().getItemDropped(blockState, null, mainHandFortuneLevel(player)));
         if (stack.isEmpty()) return null;
 
-        return Arrays.stream(OreDictionary.getOreIDs(stack))
+        oreName = Arrays.stream(OreDictionary.getOreIDs(stack))
                 .mapToObj(OreDictionary::getOreName)
                 .filter(name -> name.contains("ore") || name.contains("dust") || name.contains("gem"))
                 .findFirst()
                 .orElse(null);
+
+        if (oreName != null) return oreName;
+
+        List<ItemStack> itemDrops = blockState.getBlock().getDrops(player.getEntityWorld(), position, blockState, mainHandFortuneLevel(player));
+        oreName = itemDrops.stream()
+                .map(item ->
+                        Arrays.stream(OreDictionary.getOreIDs(item))
+                                .mapToObj(OreDictionary::getOreName)
+                                .collect(Collectors.toList()))
+                .flatMap(Collection::stream)
+                .filter(name -> name.contains("ore") || name.contains("dust") || name.contains("gem"))
+                .findFirst()
+                .orElse(null);
+
+        return oreName;
     }
 
     /**
@@ -178,7 +189,7 @@ public class VeiningEventHandler {
         for (EnumFacing dir : EnumFacing.values()) {
             BlockPos nextBlockPosition = blockPosition.offset(dir);
 
-            if (shouldBreak(veinType, world.getBlockState(nextBlockPosition), player)) {
+            if (shouldBreak(veinType, world.getBlockState(nextBlockPosition), nextBlockPosition, player)) {
                 newBlocks.add(nextBlockPosition);
             }
         }
@@ -191,8 +202,8 @@ public class VeiningEventHandler {
      *
      * @return A boolean value indicating whether the block should be destroyed.
      */
-    private static boolean shouldBreak(String veinType, IBlockState blockState, EntityPlayer player) {
-        String oreType = getOreType(blockState, player);
+    private static boolean shouldBreak(String veinType, IBlockState blockState, BlockPos position, EntityPlayer player) {
+        String oreType = getOreType(blockState, position, player);
 
         return (veinType != null && oreType != null) && // should break only when veinType & oreType != null and
                 (Configuration.serverSide.multiOre || oreType.equals(veinType)); // when multiOre == true or the oreType == veinType
