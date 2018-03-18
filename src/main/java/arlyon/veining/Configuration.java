@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  *
  * Controls the configurable options in the mod config menu.
  */
-@Config(modid = Veining.MODID)
+@Config(modid = Veining.MOD_ID)
 public class Configuration {
 
     @Config.Name("Server-side Settings")
@@ -68,8 +68,8 @@ public class Configuration {
          */
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if (event.getModID().equals(Veining.MODID)) {
-                ConfigManager.sync(Veining.MODID, Config.Type.INSTANCE);
+            if (event.getModID().equals(Veining.MOD_ID)) {
+                ConfigManager.sync(Veining.MOD_ID, Config.Type.INSTANCE);
 
                 PacketHandler.INSTANCE.sendToServer(
                         new VeiningSettingsMessage(

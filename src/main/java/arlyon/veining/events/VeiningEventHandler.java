@@ -65,7 +65,7 @@ public class VeiningEventHandler {
      * @param event The break event.
      * @return Whether the event is being called on the server side.
      */
-    private static boolean eventIsServerSide(BlockEvent.BreakEvent event) {
+    public static boolean eventIsServerSide(BlockEvent.BreakEvent event) {
         return !event.getWorld().isRemote; // remote compared to the server
     }
 
@@ -93,7 +93,7 @@ public class VeiningEventHandler {
      * @param player The player to check.
      * @return Whether the current server settings allow the break.
      */
-    private static boolean configAllowsBreak(EntityPlayer player) {
+    public static boolean configAllowsBreak(EntityPlayer player) {
         PlayerSettings playerSettings = getOrCreatePlayerSettings(player);
         return player.isSneaking() ? !playerSettings.disableWhenCrouched : !playerSettings.disableWhenStanding;
     }
@@ -121,7 +121,7 @@ public class VeiningEventHandler {
      * @param blockState The block state of the block to poll.
      * @return A string containing the type of ore, or null if it isn't one.
      */
-    private static String getOreType(IBlockState blockState, BlockPos position, EntityPlayer player) {
+    public static String getOreType(IBlockState blockState, BlockPos position, EntityPlayer player) {
 
         ItemStack stack;
         String oreName;
@@ -160,7 +160,7 @@ public class VeiningEventHandler {
      * @param player     The player.
      * @param veinType      The type of vein.
      */
-    private static void veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player, String veinType) {
+    public static void veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player, String veinType) {
         Queue<BlockPos> blocks = new UniqueQueue<>();
         blocks.offer(blockPosition);
 
