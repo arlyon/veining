@@ -44,6 +44,16 @@ public class Configuration {
         @Config.Name("Silk Touch")
         @Config.Comment("Determines whether the enchantment should respect silk touch.")
         public boolean silkTouch = true;
+
+        @Config.Name("Maximum Blocks To Break")
+        @Config.Comment("Puts a limit on the number of blocks to break. Zero for no limit.")
+        @Config.RangeInt(min = 0)
+        public int maxBlocks;
+
+        @Config.Name("Maximum Blocks Between Veins")
+        @Config.Comment("Controls how far away veins can be from each other and still be destroyed. Zero means no gap (ie contiguous). Values above 1 or 2 not recommended.")
+        @Config.RangeInt(min = 0, max = 5)
+        public int maxDistance;
     }
 
     public static class ClientSide {
