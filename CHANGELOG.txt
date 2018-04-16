@@ -1,3 +1,8 @@
+version 1.3.0
+
+    - add a tinkers construct modifier (and explosive emerald ingredient)
+    - add configurable vein gap and max block destroy limit
+
 version 1.2.2
 
     - change logger to debug to stop spam on large servers

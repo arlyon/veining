@@ -30,7 +30,7 @@ public class Veining {
 
     static final String MOD_NAME = "Veining";
     public static final String MOD_ID = "veining";
-    static final String MOD_VERSION = "1.2.2";
+    static final String MOD_VERSION = "1.3.0";
     static final String UPDATE_JSON = "https://raw.githubusercontent.com/arlyon/veining/1.12.x/update.json";
     static final String MINECRAFT_VERSIONS = "[1.12.0, 1.12.2]"; // starting with 1.12, up to 1.12.2
 

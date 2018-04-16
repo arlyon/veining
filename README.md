@@ -13,9 +13,9 @@ with a good number of bookshelves) and works just like you would expect any othe
 
 ## Support / Compatibility
 
-This mod has been tested on Minecraft 1.12. It may work on other versions but you'll have to test it yourself.
-
-Additionally, the enchantment is compatible with any modded tool that uses the "pickaxe" tool class, as well as all ores that are properly registered in the Ore Dictionary.
+This mod has been tested on Minecraft 1.12. It may work on other versions but you'll have to test it yourself. The 
+enchantment is compatible with any modded tool that uses the "pickaxe" tool class, as well as all ores that are 
+properly registered in the Ore Dictionary.
 
 Tested and confirmed (or coded to be) compatible:
 
@@ -25,6 +25,14 @@ Tested and confirmed (or coded to be) compatible:
 - IndustrialCraft
 - Actually Additions
 - Quark
+
+There is also support for using the effect with a Tinkers' Modifier. There are 10 levels, each of which increase the 
+number of breakable blocks. The modifier only takes one slot, no matter the level, and requires an "explosive emerald"
+to craft. To get started, simply apply an explosive emerald into a Tool Forge.
+          
+<br>
+
+<p align="center"><img style="margin:auto" src="/tinkers.png"></p>
 
 ## Installation
 
