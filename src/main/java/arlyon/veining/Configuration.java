@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  *
  * Controls the configurable options in the mod config menu.
  */
-@Config(modid = Veining.MODID)
+@Config(modid = Veining.MOD_ID)
 public class Configuration {
 
     @Config.Name("Server-side Settings")
@@ -44,6 +44,16 @@ public class Configuration {
         @Config.Name("Silk Touch")
         @Config.Comment("Determines whether the enchantment should respect silk touch.")
         public boolean silkTouch = true;
+
+        @Config.Name("Maximum Blocks To Break")
+        @Config.Comment("Puts a limit on the number of blocks to break. Zero for no limit.")
+        @Config.RangeInt(min = 0)
+        public int maxBlocks;
+
+        @Config.Name("Maximum Blocks Between Veins")
+        @Config.Comment("Controls how far away veins can be from each other and still be destroyed. Zero means no gap (ie contiguous). Values above 1 or 2 not recommended.")
+        @Config.RangeInt(min = 0, max = 5)
+        public int maxDistance;
     }
 
     public static class ClientSide {
@@ -68,8 +78,8 @@ public class Configuration {
          */
         @SubscribeEvent
         public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-            if (event.getModID().equals(Veining.MODID)) {
-                ConfigManager.sync(Veining.MODID, Config.Type.INSTANCE);
+            if (event.getModID().equals(Veining.MOD_ID)) {
+                ConfigManager.sync(Veining.MOD_ID, Config.Type.INSTANCE);
 
                 PacketHandler.INSTANCE.sendToServer(
                         new VeiningSettingsMessage(
