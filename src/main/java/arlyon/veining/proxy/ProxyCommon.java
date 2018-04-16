@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.oredict.OreDictionary;
+import slimeknights.tconstruct.TConstruct;
 
 /**
  * Handles things that should happen on both the client and the server side.
@@ -28,10 +29,12 @@ public class ProxyCommon {
 
         OreDictionary.registerOre("gemCoal", Items.COAL);
 
-        if (Loader.isModLoaded("tconstruct")) arlyon.veining.integration.tconstruct.ProxyCommon.preInit(e);
+        if (Loader.isModLoaded(TConstruct.modID)) arlyon.veining.integration.tconstruct.ProxyCommon.preInit(e);
     }
 
-    public void init(FMLInitializationEvent e) { }
+    public void init(FMLInitializationEvent e) {
+        if (Loader.isModLoaded(TConstruct.modID)) arlyon.veining.integration.tconstruct.ProxyCommon.init(e);
+    }
 
     public void postInit(FMLPostInitializationEvent e) { }
 }

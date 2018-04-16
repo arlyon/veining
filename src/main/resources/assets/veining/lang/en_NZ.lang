@@ -1,1 +1,4 @@
+modifier.veining.name=Veining
 enchantment.veining=Veining
+veining.config.server=Server Side Settings
+veining.config.client=Client Side Settings

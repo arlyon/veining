@@ -18,6 +18,11 @@ import static net.minecraft.init.Enchantments.FORTUNE;
 import static net.minecraft.init.Enchantments.SILK_TOUCH;
 
 public class VeiningAlgorithm {
+
+    public static boolean veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player) {
+        return VeiningAlgorithm.veiningAlgorithm(blockPosition, world, player, Configuration.serverSide.maxBlocks);
+    }
+
     /**
      * Breaks the block at a given position and then for
      * each path continues felling on that block as well.
@@ -26,7 +31,7 @@ public class VeiningAlgorithm {
      * @param world         The world.
      * @param player     The player.
      */
-    public static boolean veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player) {
+    public static boolean veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player, int maxBlocks) {
         String veinType = getOreType(world.getBlockState(blockPosition), blockPosition, player);
         if (veinType == null) return false;
 
@@ -36,7 +41,7 @@ public class VeiningAlgorithm {
 
         while (
             !blocksToBreak.isEmpty() &&
-            (blocksBroken < Configuration.serverSide.maxBlocks || Configuration.serverSide.maxBlocks == 0) &&
+            (blocksBroken < maxBlocks || maxBlocks == 0) &&
             player.getHeldItemMainhand() != ItemStack.EMPTY
         ) {
             blockPosition = blocksToBreak.peek(); // next block

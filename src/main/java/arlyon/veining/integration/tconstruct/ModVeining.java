@@ -1,36 +1,35 @@
 package arlyon.veining.integration.tconstruct;
 
+import arlyon.veining.VeiningAlgorithm;
 import arlyon.veining.events.VeiningEventHandler;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.Optional;
-import slimeknights.tconstruct.library.traits.AbstractTrait;
 
 /**
  * Adds veining as a tinkers construct trait.
  */
 @Optional.Interface(iface = "slimeknights.tconstruct.library.traits.AbstractTrait", modid = "tconstruct")
-public class TraitVeining extends AbstractTrait {
+public class ModVeining extends LeveledSingleModifierTrait {
 
-    public TraitVeining() {
-        super("veiner", 0xffffff);
-        MinecraftForge.EVENT_BUS.register(this);
+    /**
+     * Creates a new modifier with 10 levels that counts only as a single modifier.
+     */
+    ModVeining() {
+        super("veining", 0xffffff, 10, 1);
     }
 
     @Override
     public void beforeBlockBreak(ItemStack tool, BlockEvent.BreakEvent event) {
-        if
-        (
+        if (
             VeiningEventHandler.eventIsServerSide(event) &&
-            VeiningEventHandler.configAllowsBreak(event.getPlayer()) &&
-            VeiningEventHandler.getOreType(event.getState(), event.getPos(), event.getPlayer()) != null
+            VeiningEventHandler.configAllowsBreak(event.getPlayer())
         )
-            VeiningEventHandler.veiningAlgorithm(
+            VeiningAlgorithm.veiningAlgorithm(
                 event.getPos(),
                 event.getWorld(),
                 event.getPlayer(),
-                VeiningEventHandler.getOreType(event.getState(), event.getPos(), event.getPlayer())
+                (int) Math.ceil(Math.pow(this.getData(tool).level, 2) / 3) + 1
             );
 
         super.beforeBlockBreak(tool, event);
