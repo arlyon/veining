@@ -32,7 +32,7 @@ public class VeiningAlgorithm {
      * @param player     The player.
      */
     public static boolean veiningAlgorithm(BlockPos blockPosition, World world, EntityPlayer player, int maxBlocks) {
-        String veinType = getOreType(world.getBlockState(blockPosition), blockPosition, player);
+        String veinType = getOreType(world, blockPosition, player);
         if (veinType == null) return false;
 
         ValueUniqueQueue<BlockPos> blocksToBreak = new ValueUniqueQueue<>(value -> value <= Configuration.serverSide.maxDistance, Integer::compareTo);
@@ -57,7 +57,7 @@ public class VeiningAlgorithm {
             for (EnumFacing dir : EnumFacing.values()) {
                 BlockPos nextBlockPosition = blockPosition.offset(dir);
 
-                if (shouldBreak(veinType, world.getBlockState(nextBlockPosition), nextBlockPosition, player)) {
+                if (shouldBreak(veinType, world, nextBlockPosition, player)) {
                     blocksToBreak.add(nextBlockPosition, 0);
                 } else {
                     blocksToBreak.add(nextBlockPosition, distance + 1);
@@ -118,8 +118,8 @@ public class VeiningAlgorithm {
      *
      * @return A boolean value indicating whether the block should be destroyed.
      */
-    private static boolean shouldBreak(String veinType, IBlockState blockState, BlockPos position, EntityPlayer player) {
-        String oreType = getOreType(blockState, position, player);
+    private static boolean shouldBreak(String veinType, World world, BlockPos position, EntityPlayer player) {
+        String oreType = getOreType(world, position, player);
 
         return (veinType != null && oreType != null) && // should break only when veinType & oreType != null and
                 (Configuration.serverSide.multiOre || oreType.equals(veinType)); // when multiOre == true or the oreType == veinType
@@ -137,13 +137,16 @@ public class VeiningAlgorithm {
     /**
      * Returns the type of ore from a given block state.
      *
-     * @param blockState The block state of the block to poll.
+     * @param world The world that contains the block to poll.
+     * @param position The position of the block to poll.
+     * @param player The player breaking the block.
      * @return A string containing the type of ore, or null if it isn't one.
      */
-    private static String getOreType(IBlockState blockState, BlockPos position, EntityPlayer player) {
+    private static String getOreType(World world, BlockPos position, EntityPlayer player) {
 
         ItemStack stack;
         String oreName;
+        IBlockState blockState = world.getBlockState(position);
 
         stack = new ItemStack(blockState.getBlock().getItemDropped(blockState, new Random(), mainHandFortuneLevel(player)));
         if (stack.isEmpty()) return null;
@@ -157,7 +160,7 @@ public class VeiningAlgorithm {
         if (oreName != null) return oreName;
 
         NonNullList<ItemStack> itemDrops = NonNullList.create();
-        blockState.getBlock().getDrops(itemDrops, null, position, blockState, mainHandFortuneLevel(player));
+        blockState.getBlock().getDrops(itemDrops, world, position, blockState, mainHandFortuneLevel(player));
 
         oreName = itemDrops.stream()
                 .map(item ->
