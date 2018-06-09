@@ -25,7 +25,7 @@ public class VeiningAlgorithm {
 
     /**
      * Breaks the block at a given position and then for
-     * each path continues felling on that block as well.
+     * each path continues veining on that block as well.
      *
      * @param blockPosition The position of the block.
      * @param world         The world.

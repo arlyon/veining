@@ -20,7 +20,7 @@ public class VeiningSettingsMessage implements IMessage {
     }
 
     /**
-     * Creates a new instance of the felling settings message.
+     * Creates a new instance of the veining settings message.
      * @param disableWhenCrouched Whether the client has the option enabled.
      * @param disableWhenStanding Whether the client has the option enabled.
      */

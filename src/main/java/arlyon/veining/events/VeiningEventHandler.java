@@ -30,13 +30,13 @@ public class VeiningEventHandler {
     }
 
     /**
-     * Makes some checks to see if it is a valid felling event.
+     * Makes some checks to see if it is a valid veining event.
      *
      * @param event The break event.
-     * @return Whether the felling should run.
+     * @return Whether the veining should run.
      */
     private boolean shouldStartVeining(BreakEvent event) {
-        return mainHandFellingLevel(event.getPlayer()) > 0 &&
+        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, event.getPlayer().getHeldItemMainhand()) > 0 &&
             eventIsServerSide(event) &&
             configAllowsBreak(event.getPlayer());
     }
@@ -49,16 +49,6 @@ public class VeiningEventHandler {
      */
     public static boolean eventIsServerSide(BlockEvent.BreakEvent event) {
         return !event.getWorld().isRemote; // remote compared to the server
-    }
-
-    /**
-     * A simple check to see if the player that caused the break event has the enchantment in their main hand.
-     *
-     * @param player The player who is holding the tool.
-     * @return The enchantment level.
-     */
-    private static int mainHandFellingLevel(EntityPlayer player) {
-        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, player.getHeldItemMainhand());
     }
 
     /**
@@ -83,7 +73,7 @@ public class VeiningEventHandler {
 
         if (playerSettings == null) {
             playerSettings = new PlayerSettings(true, true);
-            thePlayer.sendMessage(new TextComponentString("Your Felling settings aren't synced with the server. Please update the settings in the mod config to resend them."));
+            thePlayer.sendMessage(new TextComponentString("Your Veining settings aren't synced with the server. Please update the settings in the mod config to resend them."));
         }
 
         return playerSettings;

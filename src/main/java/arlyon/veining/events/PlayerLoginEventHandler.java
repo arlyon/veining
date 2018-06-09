@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class PlayerLoginEventHandler {
 
     /**
-     * Sends a packet to the server when the client connects with the client's felling settings.
+     * Sends a packet to the server when the client connects with the client's veining settings.
      *
      * @param event The event that is called when an entity joins the world.
      */
