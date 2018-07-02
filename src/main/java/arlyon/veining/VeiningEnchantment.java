@@ -1,11 +1,29 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining;
 
 import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.util.EnumHelper;
-
-import java.util.Arrays;
 
 /**
  * The enchantment class for the Veining enchantment.
@@ -24,7 +42,7 @@ public class VeiningEnchantment extends net.minecraft.enchantment.Enchantment {
      * Sets name and registry name and assigns the proper predicate.
      *
      * @param rarityIn the rarity of the enchantment
-     * @param slots the slots in which the enchantment is valid
+     * @param slots    the slots in which the enchantment is valid
      */
     VeiningEnchantment(Rarity rarityIn, EntityEquipmentSlot... slots) {
         super(rarityIn, PICKAXE, slots); // to be eligible for this enchantment, you must match the PICKAXE predicate
@@ -34,12 +52,12 @@ public class VeiningEnchantment extends net.minecraft.enchantment.Enchantment {
 
     /**
      * Returns the minimal value of enchantability needed on the enchantment level passed.
-     *   - Settled on 32, which can be nullified or doubled based on the configuration.
+     * - Settled on 32, which can be nullified or doubled based on the configuration.
      *
      * @param enchantmentLevel The level you want to get minimum enchantability weight for.
      */
     public int getMinEnchantability(int enchantmentLevel) {
-        return (32 * Configuration.serverSide.enchantmentRarity)/100;
+        return (32 * Configuration.serverSide.enchantmentRarity) / 100;
     }
 
     /**

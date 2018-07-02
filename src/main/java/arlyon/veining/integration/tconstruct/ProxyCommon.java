@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.integration.tconstruct;
 
 import arlyon.veining.Veining;
@@ -26,15 +46,15 @@ public class ProxyCommon {
     @Optional.Method(modid = TConstruct.modID)
     public static void init(FMLInitializationEvent e) {
         GameRegistry.addShapedRecipe(
-                new ResourceLocation(Veining.MOD_ID, "explosiveemerald.recipe"),
-                new ResourceLocation(Veining.MOD_ID, "items"),
-                new ItemStack(ItemExplosiveEmerald.INSTANCE),
-                " T ",
-                "EDE",
-                " T ",
-                'T', Item.getItemFromBlock(Blocks.TNT),
-                'E', Items.EMERALD,
-                'D', Items.DIAMOND
+            new ResourceLocation(Veining.MOD_ID, "explosiveemerald.recipe"),
+            new ResourceLocation(Veining.MOD_ID, "items"),
+            new ItemStack(ItemExplosiveEmerald.INSTANCE),
+            " T ",
+            "EDE",
+            " T ",
+            'T', Item.getItemFromBlock(Blocks.TNT),
+            'E', Items.EMERALD,
+            'D', Items.DIAMOND
         );
     }
 }

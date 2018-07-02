@@ -1,13 +1,36 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.integration.tconstruct;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import slimeknights.tconstruct.library.modifiers.*;
+import slimeknights.tconstruct.library.modifiers.IModifier;
+import slimeknights.tconstruct.library.modifiers.ModifierAspect;
+import slimeknights.tconstruct.library.modifiers.ModifierNBT;
+import slimeknights.tconstruct.library.modifiers.TinkerGuiException;
 import slimeknights.tconstruct.library.utils.TinkerUtil;
 
 /**
  * A modifier that takes a single slot but can be levelled up.
- *
+ * <p>
  * Modified from MultiAspect, released under MIT
  */
 public class SingleSlotMultiAspect extends ModifierAspect {
@@ -20,9 +43,10 @@ public class SingleSlotMultiAspect extends ModifierAspect {
 
     /**
      * Creates a new SingleSlotMultiAspect
-     * @param parent The parent modifier.
-     * @param color The color.
-     * @param maxLevel The max level.
+     *
+     * @param parent              The parent modifier.
+     * @param color               The color.
+     * @param maxLevel            The max level.
      * @param ingredientsPerLevel The number of ingredients to level each level.
      */
     public SingleSlotMultiAspect(IModifier parent, int color, int maxLevel, int ingredientsPerLevel) {
@@ -34,7 +58,7 @@ public class SingleSlotMultiAspect extends ModifierAspect {
         levelAspect = new LevelAspect(parent, maxLevel);
     }
 
-    protected int getMaxForLevel(int level) {
+    private int getMaxForLevel(int level) {
         return ingredientsPerLevel * level;
     }
 
@@ -45,9 +69,9 @@ public class SingleSlotMultiAspect extends ModifierAspect {
         ModifierNBT.IntegerNBT data = getData(modifierTag);
 
         // the current level is full / level is 0
-        if(data.current >= getMaxForLevel(data.level)) {
+        if (data.current >= getMaxForLevel(data.level)) {
             // can we even apply a new level?
-            if(!levelAspect.canApply(stack, original)) {
+            if (!levelAspect.canApply(stack, original)) {
                 return false;
             }
 
@@ -68,7 +92,7 @@ public class SingleSlotMultiAspect extends ModifierAspect {
         ModifierNBT.IntegerNBT data = getData(modifierTag);
 
         // new level?
-        if(data.current >= getMaxForLevel(data.level)) {
+        if (data.current >= getMaxForLevel(data.level)) {
             // remove modifiers
             freeModifierAspect.updateNBT(root, modifierTag);
             // add a level
@@ -89,7 +113,7 @@ public class SingleSlotMultiAspect extends ModifierAspect {
     private ModifierNBT.IntegerNBT getData(NBTTagCompound tag) {
         ModifierNBT.IntegerNBT data = ModifierNBT.readInteger(tag);
 
-        if(data.max == 0) {
+        if (data.max == 0) {
             data.max = getMaxForLevel(data.level);
         }
 

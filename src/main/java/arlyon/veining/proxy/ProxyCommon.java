@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.proxy;
 
 import arlyon.veining.events.VeiningEventHandler;
@@ -18,9 +38,10 @@ public class ProxyCommon {
 
     /**
      * Handles the pre-initialization event.
-     *
+     * <p>
      * Registers the event handlers and packet channel.
      * Registers Items.COAL into the OreDict to simplify the algorithm.
+     *
      * @param e The pre-initialization event.
      */
     public void preInit(FMLPreInitializationEvent e) {
@@ -36,5 +57,6 @@ public class ProxyCommon {
         if (Loader.isModLoaded(TConstruct.modID)) arlyon.veining.integration.tconstruct.ProxyCommon.init(e);
     }
 
-    public void postInit(FMLPostInitializationEvent e) { }
+    public void postInit(FMLPostInitializationEvent e) {
+    }
 }

@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.integration.tconstruct;
 
 import arlyon.veining.Veining;
@@ -53,12 +73,12 @@ public class ItemExplosiveEmerald extends Item {
         @SubscribeEvent
         public static void registerModel(final ModelRegistryEvent event) {
             ModelLoader.setCustomModelResourceLocation(
-                    ItemExplosiveEmerald.INSTANCE,
-                    0,
-                    new ModelResourceLocation(
-                            Objects.requireNonNull(ItemExplosiveEmerald.INSTANCE.getRegistryName()),
-                            "inventory"
-                    )
+                ItemExplosiveEmerald.INSTANCE,
+                0,
+                new ModelResourceLocation(
+                    Objects.requireNonNull(ItemExplosiveEmerald.INSTANCE.getRegistryName()),
+                    "inventory"
+                )
             );
         }
     }

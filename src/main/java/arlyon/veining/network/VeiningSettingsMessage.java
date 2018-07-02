@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.network;
 
 import arlyon.veining.Veining;
@@ -21,6 +41,7 @@ public class VeiningSettingsMessage implements IMessage {
 
     /**
      * Creates a new instance of the veining settings message.
+     *
      * @param disableWhenCrouched Whether the client has the option enabled.
      * @param disableWhenStanding Whether the client has the option enabled.
      */
@@ -31,6 +52,7 @@ public class VeiningSettingsMessage implements IMessage {
 
     /**
      * Writes the boolean values to the buffer.
+     *
      * @param byteBuf The buffer to write to.
      */
     @Override
@@ -41,6 +63,7 @@ public class VeiningSettingsMessage implements IMessage {
 
     /**
      * Reads the boolean values from the buffer.
+     *
      * @param byteBuf The buffer to read from.
      */
     @Override
@@ -59,7 +82,7 @@ public class VeiningSettingsMessage implements IMessage {
          * When receiving a message, add a new task on the world thread to handle the message.
          *
          * @param message In incoming message.
-         * @param ctx The message context.
+         * @param ctx     The message context.
          * @return Nothing. Can return a reply message.
          */
         @Override

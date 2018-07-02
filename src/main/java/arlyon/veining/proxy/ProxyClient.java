@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.proxy;
 
 import arlyon.veining.VeiningEnchantment;
@@ -19,6 +39,7 @@ public class ProxyClient extends ProxyCommon {
     /**
      * Adds the enchantment type to the creative tabs client side,
      * and adds the client side event handler to send the config.
+     *
      * @param event The pre-initialization event.
      */
     @Override
@@ -30,18 +51,22 @@ public class ProxyClient extends ProxyCommon {
     }
 
     @Override
-    public void init(FMLInitializationEvent e) { super.init(e); }
+    public void init(FMLInitializationEvent e) {
+        super.init(e);
+    }
 
     @Override
-    public void postInit(FMLPostInitializationEvent e) { super.postInit(e); }
+    public void postInit(FMLPostInitializationEvent e) {
+        super.postInit(e);
+    }
 
     /**
      * Registers the enchantment in the creative tab.
      */
     private void addEnchantToCreativeTab() {
         EnumEnchantmentType[] enchantmentTypes = CreativeTabs.TOOLS.getRelevantEnchantmentTypes();
-        enchantmentTypes = Arrays.copyOf(enchantmentTypes, enchantmentTypes.length+1);
-        enchantmentTypes[enchantmentTypes.length-1] = VeiningEnchantment.PICKAXE;
+        enchantmentTypes = Arrays.copyOf(enchantmentTypes, enchantmentTypes.length + 1);
+        enchantmentTypes[enchantmentTypes.length - 1] = VeiningEnchantment.PICKAXE;
         CreativeTabs.TOOLS.setRelevantEnchantmentTypes(enchantmentTypes);
     }
 

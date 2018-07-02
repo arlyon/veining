@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.util;
 
 import javax.annotation.Nullable;
@@ -8,12 +28,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * The value queue is a fifo (excluding when the predicate is changed)
- * data structure backed by a map of values. Items added to the queue with
- * a that pass the predicate will be added into the set but not in
- * the queue. Only when the predicate changes or the item is re-added may
- * it appear in the queue. Items that have already been popped may be added again,
- * but will be ignored.
+ * The weighted unique queue is a fifo data structure backed by a map of weights.
+ * When an item is added to the queue it is saved along with its weight.
+ * Only items that pass the predicate appear in the queue. Items that have
+ * already been added to the queue will update the weight of that item (if
+ * the comparator passes).
  * <p>
  * Uses include:
  * - calculating Levenshtein distance of words and retrieving words with x or less.
@@ -21,21 +40,19 @@ import java.util.stream.Stream;
  *
  * @param <T> Any object that implements equals and hashCode (for Hashtable)
  */
-public class ValueUniqueQueue<T> {
+public class WeightedUniqueQueue<T> {
 
     private final Map<T, Integer> map;
     private Queue<T> queue;
-
     private Predicate<Integer> predicate;
     private Comparator<Integer> comparator;
-
     /**
-     * Creates a new instance of the ValueUniqueQueue
+     * Creates a new instance of the WeightedUniqueQueue
      *
      * @param predicate  The predicate to test for entering the queue.
      * @param comparator The comparator to compare two values in the queue.
      */
-    public ValueUniqueQueue(Predicate<Integer> predicate, @Nullable Comparator<Integer> comparator) {
+    public WeightedUniqueQueue(Predicate<Integer> predicate, @Nullable Comparator<Integer> comparator) {
         this.predicate = predicate;
         this.comparator = comparator;
 
@@ -44,24 +61,22 @@ public class ValueUniqueQueue<T> {
     }
 
     /**
-     * Adds the element to the queue if the value is lower
-     * than the max and has not been added to the queue.
+     * Adds the element to the queue if it passes the predicate and
+     * has not already been added to the queue.
      *
-     * @param t        The element to add to the queue.
-     * @param newValue The value to insert.
+     * @param t      The element to add to the queue.
+     * @param weight The weight of the element.
      */
-    public void add(T t, int newValue) {
+    public void add(T t, int weight) {
         try {
-            int oldValue = map.get(t); // get the old value for the item
-            if (!predicate.test(oldValue) && predicate.test(newValue)) {
+            int oldWeight = map.get(t); // get the old value for the item
+            if (comparator != null && comparator.compare(oldWeight, weight) > 0)
+                map.put(t, weight);
+            if (!predicate.test(oldWeight) && predicate.test(weight))
                 queue.add(t); // new value qualifies for queue: add it
-                map.put(t, newValue);
-            } else if (comparator != null && comparator.compare(oldValue, newValue) > 0) {
-                map.put(t, newValue); // new value is smaller: update it
-            }
         } catch (NullPointerException e) {
-            map.put(t, newValue); // add to the map if not exists
-            if (predicate.test(newValue)) queue.add(t); // add to the queue if qualified
+            map.put(t, weight); // add to the map if not exists
+            if (predicate.test(weight)) queue.add(t); // add to the queue if qualified
         }
     }
 
@@ -73,10 +88,11 @@ public class ValueUniqueQueue<T> {
      *
      * @return The element or null if no more exist.
      */
-    public T remove() {
+    public WeightedPair remove() {
         T element = queue.poll();
+        WeightedPair pair = new WeightedPair(element, map.get(element));
         if (element != null) map.put(element, -1);
-        return element;
+        return pair;
     }
 
     /**
@@ -88,8 +104,8 @@ public class ValueUniqueQueue<T> {
         return queue.peek();
     }
 
-    public int getValue(T value) {
-        return map.get(value);
+    public int getWeight(T t) {
+        return map.get(t);
     }
 
     public int size() {
@@ -100,8 +116,14 @@ public class ValueUniqueQueue<T> {
         return queue.isEmpty();
     }
 
-    public boolean contains(T o) {
-        return queue.contains(o);
+    /**
+     * Checks if the given element exists in the map.
+     *
+     * @param t The element to check.
+     * @return True if in the map.
+     */
+    public boolean contains(T t) {
+        return map.get(t) != null;
     }
 
     public Iterator<T> iterator() {
@@ -117,17 +139,16 @@ public class ValueUniqueQueue<T> {
     }
 
     /**
-     * Clears the queue but retains the set
+     * Clears the queue but retains the map
      * meaning that items that have been
      * popped may not be re-added.
      */
     public void clear() {
         queue.clear();
-        map.clear();
     }
 
     /**
-     * Clears the queue and the set,
+     * Resets the queue and the set,
      * allowing for elements that have been
      * previously popped to be re-added
      * and appear in the queue again.
@@ -148,12 +169,13 @@ public class ValueUniqueQueue<T> {
      * @param predicate The new predicate.
      */
     public void setPredicate(Predicate<Integer> predicate) {
-        // filter newly unqualified items in queue
+
+        // remove newly invalid items from queue
         this.queue = this.queue.stream()
             .filter(element -> !predicate.test(this.map.get(element)))
             .collect(Collectors.toCollection(ArrayDeque::new));
 
-        // add newly qualified from set
+        // add newly valid items to queue
         this.map.keySet().forEach(element -> {
             int val = this.map.get(element);
             if (this.predicate.negate().and(predicate).test(val)) {
@@ -162,5 +184,16 @@ public class ValueUniqueQueue<T> {
         });
 
         this.predicate = predicate;
+    }
+
+    public class WeightedPair {
+
+        public final T element;
+        public final Integer weight;
+
+        WeightedPair(T element, Integer weight) {
+            this.element = element;
+            this.weight = weight;
+        }
     }
 }

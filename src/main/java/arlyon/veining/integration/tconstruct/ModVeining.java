@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.integration.tconstruct;
 
 import arlyon.veining.VeiningAlgorithm;
@@ -21,11 +41,8 @@ public class ModVeining extends LeveledSingleModifierTrait {
 
     @Override
     public void beforeBlockBreak(ItemStack tool, BlockEvent.BreakEvent event) {
-        if (
-            VeiningEventHandler.eventIsServerSide(event) &&
-            VeiningEventHandler.configAllowsBreak(event.getPlayer())
-        )
-            VeiningAlgorithm.veiningAlgorithm(
+        if (VeiningEventHandler.configAllowsBreak(event.getPlayer()))
+            VeiningAlgorithm.getInstance().veiningAlgorithm(
                 event.getPos(),
                 event.getWorld(),
                 event.getPlayer(),

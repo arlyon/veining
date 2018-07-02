@@ -1,3 +1,23 @@
+/*
+ * veining (c) by Alexander Lyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
+/*
+ * veining (c) by arlyon
+ *
+ * veining is licensed under a
+ * Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License.
+ *
+ * You should have received a copy of the license along with this
+ * work. If not, see <http://creativecommons.org/licenses/by-nc-sa/4.0/>
+ */
+
 package arlyon.veining.events;
 
 import arlyon.veining.Veining;
@@ -6,7 +26,6 @@ import arlyon.veining.network.PlayerSettings;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -14,42 +33,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * The veining event subscriber class, which contains all the required functions for the subscriber.
  */
 public class VeiningEventHandler {
-
-    /**
-     * Intercepts the block break event to inject the veining enchantment logic.
-     *
-     * @param event the block break event that is called each time a minecraft block is broken.
-     */
-    @SubscribeEvent
-    public void veiningBlockBreakSubscriber(BreakEvent event) {
-        if (shouldStartVeining(event)) VeiningAlgorithm.veiningAlgorithm(
-            event.getPos(),
-            event.getWorld(),
-            event.getPlayer()
-        );
-    }
-
-    /**
-     * Makes some checks to see if it is a valid veining event.
-     *
-     * @param event The break event.
-     * @return Whether the veining should run.
-     */
-    private boolean shouldStartVeining(BreakEvent event) {
-        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, event.getPlayer().getHeldItemMainhand()) > 0 &&
-            eventIsServerSide(event) &&
-            configAllowsBreak(event.getPlayer());
-    }
-
-    /**
-     * Checks if the event is server-side (mainly for readability).
-     *
-     * @param event The break event.
-     * @return Whether the event is being called on the server side.
-     */
-    public static boolean eventIsServerSide(BlockEvent.BreakEvent event) {
-        return !event.getWorld().isRemote; // remote compared to the server
-    }
 
     /**
      * Checks if the block should break according to the player's settings.
@@ -77,5 +60,30 @@ public class VeiningEventHandler {
         }
 
         return playerSettings;
+    }
+
+    /**
+     * Intercepts the block break event to inject the veining enchantment logic.
+     *
+     * @param event the block break event that is called each time a minecraft block is broken.
+     */
+    @SubscribeEvent
+    public void veiningBlockBreakSubscriber(BreakEvent event) {
+        if (shouldStartVeining(event)) VeiningAlgorithm.getInstance().veiningAlgorithm(
+            event.getPos(),
+            event.getWorld(),
+            event.getPlayer()
+        );
+    }
+
+    /**
+     * Makes some checks to see if it is a valid veining event.
+     *
+     * @param event The break event.
+     * @return Whether the veining should run.
+     */
+    private boolean shouldStartVeining(BreakEvent event) {
+        return EnchantmentHelper.getEnchantmentLevel(Veining.veining, event.getPlayer().getHeldItemMainhand()) > 0 &&
+            configAllowsBreak(event.getPlayer());
     }
 }

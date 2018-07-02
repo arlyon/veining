@@ -8,3 +8,4 @@ out/
 *.iws
 .todos.json
 \.DS_Store
+*.properties
