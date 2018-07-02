@@ -55,7 +55,7 @@ public class Veining {
     );
     public static final Map<Integer, PlayerSettings> playerSettings = new HashMap<>();
     static final String MOD_NAME = "Veining";
-    static final String MOD_VERSION = "1.3.1";
+    static final String MOD_VERSION = "1.3.2";
     static final String UPDATE_JSON = "https://raw.githubusercontent.com/arlyon/veining/1.12.x/update.json";
     static final String MINECRAFT_VERSIONS = "[1.12.0, 1.12.2]"; // starting with 1.12, up to 1.12.2
     public static Logger log;

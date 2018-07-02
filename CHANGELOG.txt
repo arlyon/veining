@@ -1,3 +1,8 @@
+version 1.3.2
+
+    - fairly substantial rewrite of algorithm to correctly trigger all events
+    - removal of the silk touch option
+
 version 1.3.1
 
     - fix silly null pointer
