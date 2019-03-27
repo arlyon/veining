@@ -1,4 +1,5 @@
 enchantment.veining=Veining
+enchantment.veining.veining.desc=Destroys entire veins at once.
 modifier.veining.name=Veining
 veining.config.server=Server Side Settings
 veining.config.client=Client Side Settings
