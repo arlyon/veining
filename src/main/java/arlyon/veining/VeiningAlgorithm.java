@@ -128,7 +128,7 @@ public class VeiningAlgorithm {
 
         oreName = Arrays.stream(OreDictionary.getOreIDs(stack))
             .mapToObj(OreDictionary::getOreName)
-            .filter(name -> name.contains("ore") || name.contains("dust") || name.contains("gem"))
+            .filter(name -> name.contains("ore") || name.contains("dust") || name.contains("gem") || name.contains("crystal"))
             .findFirst()
             .orElse(null);
 
